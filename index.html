@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fim da medida protetiva</title>
+    <!-- Fonte Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca de Confeitos -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Fundo base claro */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 100%);
+            color: #590d22;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+            position: relative; 
+        }
+
+        /* ----- OVERLAY DO DIA SEGUINTE (Fundo Vinho Sombrio) ----- */
+        #dark-overlay {
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: linear-gradient(135deg, #2b000b 0%, #4a0414 100%);
+            opacity: 0; 
+            transition: opacity 2.5s ease-in-out; 
+            z-index: 0; 
+            pointer-events: none; 
+        }
+
+        .show-overlay {
+            opacity: 1 !important;
+            pointer-events: all !important;
+        }
+
+        /* ----- DECORAÇÃO DE FUNDO (Corações Esquerda) ----- */
+        .bg-hearts-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 350px;
+            height: 500px;
+            pointer-events: none; 
+            z-index: 1; 
+        }
+
+        .s-heart {
+            position: absolute;
+            fill: #a4133c;
+        }
+
+        .h1 { bottom: 5%; left: 8%; transform: scale(1.6) rotate(-15deg); opacity: 0.8; }
+        .h2 { bottom: 12%; left: 35%; transform: scale(1.3) rotate(10deg); opacity: 0.7; }
+        .h3 { bottom: 20%; left: -2%; transform: scale(1.4) rotate(25deg); opacity: 0.65; }
+        .h4 { bottom: 30%; left: 20%; transform: scale(1) rotate(-5deg); opacity: 0.5; }
+        .h5 { bottom: 42%; left: 45%; transform: scale(0.85) rotate(20deg); opacity: 0.4; }
+        .h6 { bottom: 50%; left: 10%; transform: scale(0.7) rotate(-15deg); opacity: 0.35; }
+        .h7 { bottom: 65%; left: 30%; transform: scale(0.55) rotate(15deg); opacity: 0.25; }
+        .h8 { bottom: 78%; left: 15%; transform: scale(0.4) rotate(-20deg); opacity: 0.15; }
+        .h9 { bottom: 88%; left: 40%; transform: scale(0.3) rotate(5deg); opacity: 0.1; }
+        .h10 { bottom: 95%; left: 25%; transform: scale(0.2) rotate(-10deg); opacity: 0.05; }
+
+
+        /* ----- CONTEÚDO CENTRAL ----- */
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10; 
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            color: #800f2f;
+        }
+
+        .main-days-wrapper {
+            margin: 0 0 25px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #big-days {
+            font-size: 8rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #a4133c;
+            text-shadow: 2px 5px 15px rgba(164, 19, 60, 0.15);
+            display: inline-block; 
+            animation: pulse-heart 1.3s 3; 
+        }
+
+        @keyframes pulse-heart {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.08); }
+            25% { transform: scale(1); }
+            35% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .main-days-wrapper p {
+            font-size: 1.5rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-top: 5px;
+            color: #c9184a;
+        }
+
+        /* Contador mantendo Semanas, Horas, Minutos e Segundos */
+        .small-countdown {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: #590d22;
+            letter-spacing: 1px;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            margin-bottom: 40px;
+        }
+
+        .small-countdown span {
+            font-weight: 600;
+            color: #a4133c;
+        }
+
+        /* Cadeado */
+        #padlock-wrapper {
+            margin-top: 10px;
+        }
+
+        #padlock-shackle {
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: 30px 60px; 
+        }
+
+        .unlocked #padlock-shackle {
+            transform: translateY(-15px) rotate(-35deg);
+        }
+
+        /* ----- MENSAGEM DO DIA SEGUINTE ----- */
+        #day-after-content {
+            position: absolute;
+            z-index: 20;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 3s ease-in-out, visibility 3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .show-final-message {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .final-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8rem;
+            color: #ffccd5; 
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .final-subtitle {
+            font-size: 1.1rem;
+            color: #ff8fa3;
+            font-weight: 300;
+            letter-spacing: 2px;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Responsividade para Celular */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.3rem; }
+            #big-days { font-size: 6.5rem; }
+            .small-countdown { padding: 15px 20px; font-size: 0.85rem; margin-bottom: 30px;}
+            .bg-hearts-container { width: 200px; height: 350px; }
+            .h1 { bottom: -5%; }
+            .final-title { font-size: 1.8rem; }
+            .final-subtitle { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY ESCURO (Dia 30 em diante) -->
+    <div id="dark-overlay"></div>
+
+    <!-- CORAÇÕES DE FUNDO -->
+    <div class="bg-hearts-container" id="hearts-bg">
+        <svg class="s-heart h1" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h2" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h3" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h4" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h5" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h6" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h7" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h8" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h9" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="s-heart h10" viewBox="0 0 24 24" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </div>
+
+    <!-- CONTEÚDO CENTRAL (Contador e Cadeado) -->
+    <div class="center-content" id="main-content">
+        <h1>Fim da medida protetiva</h1>
+        
+        <div class="main-days-wrapper">
+            <span id="big-days">0</span>
+            <p>Dias</p>
+        </div>
+
+        <div class="small-countdown" id="detailed-timer">
+            <span id="weeks">0</span> semanas, 
+            <span id="hours">00</span> horas, 
+            <span id="minutes">00</span> min e 
+            <span id="seconds">00</span> seg
+        </div>
+
+        <div id="padlock-wrapper">
+            <svg viewBox="0 0 100 120" width="70" height="90" style="overflow: visible;">
+                <path id="padlock-shackle" d="M 30 60 V 35 A 20 20 0 0 1 70 35 V 60" fill="none" stroke="#a4133c" stroke-width="10" stroke-linecap="round"/>
+                <rect x="20" y="55" width="60" height="45" rx="8" fill="#c9184a" stroke="#a4133c" stroke-width="3"/>
+                <circle cx="50" cy="70" r="6" fill="#fff0f3"/>
+                <path d="M 47 70 L 45 85 L 55 85 L 53 70 Z" fill="#fff0f3"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO DO DIA SEGUINTE -->
+    <div id="day-after-content">
+        <h2 class="final-title">Os laços se reataram</h2>
+        <p class="final-subtitle">Um novo capítulo começa hoje</p>
+    </div>
+
+    <script>
+        const currentYear = new Date().getFullYear();
+        
+        // Data alvo: 29 de Julho do ano atual à meia-noite (mês 6 = Julho no JS)
+        const targetDate = new Date(currentYear, 6, 29, 0, 0, 0).getTime(); 
+        
+        // Data do "Dia Seguinte": 30 de Julho à meia-noite
+        const dayAfterDate = new Date(currentYear, 6, 30, 0, 0, 0).getTime();
+
+        const mainContent = document.getElementById("main-content");
+        const darkOverlay = document.getElementById("dark-overlay");
+        const dayAfterContent = document.getElementById("day-after-content");
+        const padlockWrapper = document.getElementById("padlock-wrapper");
+        const detailedTimer = document.getElementById("detailed-timer");
+        const bigDaysDisplay = document.getElementById("big-days");
+
+        function startFinalCountdown() {
+            let now = new Date().getTime();
+
+            // CENA 1: Se já for dia 30 de Julho em diante (O Dia Seguinte)
+            if (now >= dayAfterDate) {
+                mainContent.style.display = "none";
+                setTimeout(() => {
+                    darkOverlay.classList.add("show-overlay");
+                    dayAfterContent.classList.add("show-final-message");
+                }, 100); 
+                return; 
+            }
+
+            // CENA 2: Se for EXATAMENTE dia 29 de Julho
+            if (now >= targetDate && now < dayAfterDate) {
+                setZero(); 
+                setTimeout(() => {
+                    unlockAndConfetti();
+                }, 500); 
+                return; 
+            }
+
+            // CENA 3: Antes do dia 29 (Contagem Real)
+            const interval = setInterval(function() {
+                now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance <= 0) {
+                    clearInterval(interval);
+                    setZero();
+                    unlockAndConfetti();
+                } else {
+                    updateTimerDisplay(distance);
+                }
+            }, 1000);
+            
+            updateTimerDisplay(targetDate - now);
+        }
+
+        // Atualiza a tela calculando Semanas, Horas, Minutos e Segundos
+        function updateTimerDisplay(distance) {
+            // Dias totais no calendário (para o número grande)
+            const calendarDays = Math.ceil(distance / (1000 * 60 * 60 * 24));
+            
+            // Matemática para semanas e horas quebradas
+            const exactTotalDays = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const weeks = Math.floor(exactTotalDays / 7);
+            
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Injeta na tela
+            document.getElementById("big-days").innerHTML = calendarDays;
+            document.getElementById("weeks").innerHTML = weeks;
+            document.getElementById("hours").innerHTML = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerHTML = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("seconds").innerHTML = seconds < 10 ? "0" + seconds : seconds;
+        }
+
+        function setZero() {
+            document.getElementById("big-days").innerHTML = "0";
+            document.getElementById("weeks").innerHTML = "0";
+            document.getElementById("hours").innerHTML = "00";
+            document.getElementById("minutes").innerHTML = "00";
+            document.getElementById("seconds").innerHTML = "00";
+            
+            bigDaysDisplay.style.animation = "none";
+            detailedTimer.innerHTML = "O cadeado destrancou e a medida chegou ao fim!";
+        }
+
+        function unlockAndConfetti() {
+            padlockWrapper.classList.add("unlocked");
+            confetti({
+                particleCount: 200,
+                spread: 120,
+                origin: { y: 0.6 },
+                colors:['#a4133c', '#ff4d6d', '#ffffff', '#ffccd5', '#c9184a']
+            });
+        }
+
+        startFinalCountdown();
+    </script>
+
+</body>
+</html>
